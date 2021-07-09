@@ -5,12 +5,16 @@ const jwt = require('jsonwebtoken')
 
 const mongodb = require('mongodb')
 const MongoClient = mongodb.MongoClient
-const connectionURL = 'mongodb://127.0.0.1:27017'
+const connectionURL = process.env.MONGODB_URL || 'mongodb+srv://eswar:1234@cluster0.uocnq.mongodb.net/loginApp?retryWrites=true&w=majority' 
+
+// const connectionURL= 'mongodb://localhost:27017/loginApp'
+
+
 const databaseName = 'loginApp'
 
 const app=express()
 app.use(express.json())
-const PORT = process.env.PORT||3044
+const PORT =3044
 
 let db = null
 const initiateDb = () =>{
@@ -18,7 +22,7 @@ const initiateDb = () =>{
   try {
   MongoClient.connect(connectionURL,{useNewUrlParser: true}, (error,client) => {
   if (error){
-      return console.log('Unable to connect')
+      return console.log('Unable to connect',connectionURL)
   }
   else{
  
@@ -40,8 +44,7 @@ app.listen(PORT,() => console.log(`server Started on PORT ${PORT}`))
 
 initiateDb()
 
-// Have Node serve the files for our built React app
-app.use(express.static(path.resolve(__dirname, '../client/build')));
+
 
 
 const isPasswordValid = pswd => {
@@ -61,12 +64,12 @@ app.post('/createUser', async (req,res) =>{
 // dbResponse = await db.collection('users').findOne({password: "1234"});
 dbResponse = await db.collection('users').find({username}).toArray();
 
-console.log(dbResponse)
+console.log(dbResponse.length)
 
 if(dbResponse.length > 0){
     
     
-    res.status(409).send("already exists")
+    res.status(409).send({error:'User already exists'})
 
 }else{
 
@@ -78,11 +81,11 @@ const dbresponse = await db.collection('users').insertOne({
   password: encryptedPwd
 }) 
 
-res.send("user Created")
+res.send({success:"user Created"})
     
   }
 else{
-  res.status(400).send("Please enter password of length 8")
+  res.status(400).send( {error:'Password length should be minimum of 8 characters '})
 }
  
 }
@@ -95,23 +98,43 @@ else{
 // user Login with jwtToken
 
 app.post('/login', async (req,res) => {
-  console.log('body is',req.body)
-  const {username, password} = req.body
-  dbResponse = await db.collection('users').findOne({username});
-  const isValid =  await bcrypt.compare(password,dbResponse.password)
   
-  if(isValid){
+  const {username, password} = req.body
+
+  
+  dbResponse = await db.collection('users').findOne({username});
+  console.log('db invalid user', dbResponse)
+
+  if (dbResponse=== null){
+    res.status(400).send({error: 'User Dose not exist'})  
+  }else if(  await bcrypt.compare(password,dbResponse.password) ){
+    console.log('parms are', username,password,dbResponse.password)  
     const payload = {username}
     const jwtToken =  jwt.sign(payload,'SECRET KEY')
     console.log('jwt',jwtToken)       
     res.send({jwtToken})
+
+  const userPriv =  await db.collection('userroles').aggregate([
+      { $lookup:
+         {
+           from: 'users',
+           localField: 'userId',
+           foreignField: '_id',
+           as: 'userPrivileges'
+         }
+       }
+      ]).toArray();
+
+  console.log('userPriv',userPriv)
+  
+
   }
   else{
-  res.status(400).send("Invalid password")
+  res.status(400).send({error: 'Invalid password'})
   }
 })
 
-
+// db.users.aggregate
 
 
 // middleware
@@ -125,12 +148,12 @@ const authenticateToken = (request, response, next) => {
 
   if (jwtToken === undefined) {
     response.status(401);
-    response.send("Invalid JWT Token");
+    response.send({error: 'Invalid JWT Token'});
   } else {
     jwt.verify(jwtToken, "SECRET KEY", (error, payload) => {
       if (error) {
         response.status(401);
-        response.send("Invalid JWT Token");
+        response.send({error: 'Invalid JWT Token'});
       } else {
         next();
       }
@@ -173,7 +196,17 @@ app.delete('/delete', async (req,res) => {
 
 
 
+// // Have Node serve the files for our built React app
+// app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 
+// // All other GET requests not handled before will return our React app
+// app.get('*', (req, res) => {
+//   res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+// });
+
+
+
+  
 
   module.exports = app

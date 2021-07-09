@@ -114,7 +114,7 @@ margin: auto;
     font-size: 14px;
     color: #ffffff;
     height: 40px;
-    width: 100%;
+    width: 45%;
     margin-top: 20px;
     margin-bottom: 2px;
     background-color: #0b69ff;
@@ -122,6 +122,8 @@ margin: auto;
     border: none;
     cursor: pointer;
     outline: none;
+    
+    
 }
 
 .input-container {
@@ -142,3 +144,9 @@ margin: auto;
     color: #ff0b37;
   }
   
+  .btnCont{
+    display: flex;
+    align-items: center;
+justify-content: space-around;
+    width: 100%;
+  }

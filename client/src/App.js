@@ -1,11 +1,27 @@
 
 // import React from "react";
 // import logo from "./logo.svg";
+import {Switch, Route} from 'react-router-dom'
 import "./App.css";
 import LoginForm from './components/LoginForm'
+import RegisterUserForm from './components/RegisterUserForm'
+import Home from './components/Home'
+import Products from './components/Products';
+import Cart from './components/Cart';
+import NotFound from './components/NotFound';
+import WrapperCompnent from './components/WrapperComponent';
+
 
 const  App = () => (
-<LoginForm/>
+    <Switch>
+    <Route exact path="/login" component={LoginForm}/>
+    <Route exact path="/register" component={RegisterUserForm}/>
+    <WrapperCompnent exact path="/" component={Home} />
+    <WrapperCompnent exact path="/Products" component={Products} />
+    <WrapperCompnent exact path="/Cart" component={Cart} />
+    <NotFound/>
+    </Switch>
+
 
 )
   

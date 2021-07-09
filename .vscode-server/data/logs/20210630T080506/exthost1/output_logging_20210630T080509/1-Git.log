@@ -1,0 +1,3 @@
+Looking for git in: git
+Using git 2.25.1 from git
+Opening repository for path='/root' failed; ex=Error: spawn git EACCES
