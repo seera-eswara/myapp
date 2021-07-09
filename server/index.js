@@ -40,7 +40,7 @@ app.listen(PORT,() => console.log(`server Started on PORT ${PORT}`))
 }
 
 
-// DB connection established
+// DB connection established here
 
 initiateDb()
 
