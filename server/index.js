@@ -14,7 +14,7 @@ const databaseName = 'loginApp'
 
 const app=express()
 app.use(express.json())
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 let db = null
 const initiateDb = () =>{
