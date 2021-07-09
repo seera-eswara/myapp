@@ -17,32 +17,7 @@ app.use(express.json())
 const PORT = process.env.PORT || 3044;
 
 let db = null
-const initiateDb = () =>{
 
-  try {
-  MongoClient.connect(connectionURL,{useNewUrlParser: true}, (error,client) => {
-  if (error){
-      return console.log('Unable to connect',connectionURL)
-  }
-  else{
- 
-   db = client.db(databaseName)
-
-app.listen(PORT,() => console.log(`server Started on PORT ${PORT}`))
-  }
-
-})
-  }
-  catch(error) {
-    console.log("DB connection failed",error)
-  }
-
-}
-
-
-// DB connection established here
-
-initiateDb()
 
 
 
@@ -196,17 +171,42 @@ app.delete('/delete', async (req,res) => {
 
 
 
-// // Have Node serve the files for our built React app
-// app.use(express.static(path.resolve(__dirname, '../client/build')));
+// Have Node serve the files for our built React app
+app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 
-// // All other GET requests not handled before will return our React app
-// app.get('*', (req, res) => {
-//   res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
-// });
+// All other GET requests not handled before will return our React app
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+});
 
 
+const initiateDb = () =>{
 
+  try {
+  MongoClient.connect(connectionURL,{useNewUrlParser: true}, (error,client) => {
+  if (error){
+      return console.log('Unable to connect',connectionURL)
+  }
+  else{
+ 
+   db = client.db(databaseName)
+
+app.listen(PORT,() => console.log(`server Started on PORT ${PORT}`))
+  }
+
+})
+  }
+  catch(error) {
+    console.log("DB connection failed",error)
+  }
+
+}
+
+
+// DB connection established here
+
+initiateDb()
   
 
   module.exports = app
